@@ -20,23 +20,20 @@ class aiaa2711(Scene):
         actual_weather = Text("Actual Weather", font_size=48).next_to(sunshine, UP)
         
         self.play(FadeIn(cloud), FadeIn(rain_probability))
+        self.wait(5) # 等待时间，随配音调整
         self.play(Transform(cloud, sunshine), Transform(rain_probability, actual_weather))
         self.wait(1) # 等待时间，随配音调整
-        # self.play(FadeOut(cloud), FadeOut(rain_probability))
-        
         self.play(cloud.animate.shift(LEFT * 4), rain_probability.animate.shift(LEFT * 4))
-        
         text_1 = Text("Accuracy of prediction?", font_size=30).shift(RIGHT*2 + UP*2)
         Text_2 = Text("How to quantify accuracy?", font_size=30).shift(RIGHT*2)
         
         self.play(Write(text_1), Write(Text_2))
-        
         # 清除文本和云朵
         self.play(FadeOut(text_1), FadeOut(Text_2), FadeOut(cloud), FadeOut(rain_probability))
         
         
     def show_connection(self):
-        text_cross_entropy = Text("Cross Entropy", font_size=48).shift(UP*2)
+        text_cross_entropy = Text("Cross Entropy", font_size=48)
         
         self.play(Write(text_cross_entropy))
         self.play(text_cross_entropy.animate.shift(LEFT * 4))
@@ -102,6 +99,7 @@ class aiaa2711(Scene):
             Write(text_line0),
             run_time=2
         )
+        self.wait(5)  # 等待时间，随配音调整
         
         self.play(grid.animate.shift(LEFT * 14), text_line0.animate.shift(LEFT * 14))        
         # 创建骰子标签
@@ -169,10 +167,9 @@ class aiaa2711(Scene):
         
         self.wait(1)  # 等待时间，随配音调整
         
-        text_impossible = Text("Impossible Event woud make you very surprise", font_size=24).shift(RIGHT * 2 + DOWN * 2)
+        text_impossible = Text("Impossible Event woud make you very surprise \n that is, huge amount of infromation.", font_size=24).shift(RIGHT * 2 + DOWN * 2)
         number = Text("dice = 7 or -1 ", font_size=24).next_to(text_impossible, UP)
-        self.play(Write(text_impossible))
-        self.play(Write(number))
+        self.play(Write(text_impossible), Write(number))
         
         # 淡出所有对象
         self.wait(1)  # 等待时间，随配音调整
@@ -261,6 +258,8 @@ class aiaa2711(Scene):
         divider_line = Line(UP*3, DOWN*3, color=GREY)
         self.play(Create(divider_line))
         
+        text_discription = Text("B: Throwing 6 for 10 consecutive times", font_size=24).shift(UP * 2 + RIGHT * 3)
+        
         # 上部：概率计算（移除手动位移，使用对齐参数）
         prob_formula = MathTex(
             r"P(B) = \left(\frac{1}{6}\right)^{10} = ",
@@ -276,7 +275,7 @@ class aiaa2711(Scene):
             font_size=36,
             color=BLUE
         ).arrange(DOWN, aligned_edge=LEFT).next_to(prob_formula, DOWN, buff=0.8)
-        
+        self.play(Write(text_discription))
         self.play(Write(prob_formula), Write(info_formula), run_time=2)
         self.wait(3)  # 等待时间，随配音调整
         
@@ -315,9 +314,12 @@ class aiaa2711(Scene):
         self.play(Create(func_graph))
         self.play(Write(formula))
         
-        self.play(FadeOut(axes), FadeOut(axes_labels), FadeOut(grid), FadeOut(func_graph), FadeOut(prob_formula), FadeOut(info_formula), FadeOut(divider_line))
+        self.play(FadeOut(axes), FadeOut(axes_labels), FadeOut(grid), FadeOut(func_graph), FadeOut(prob_formula), FadeOut(info_formula), FadeOut(divider_line), FadeOut(text_discription))
         self.play(formula.animate.move_to(ORIGIN).scale(1.5))
         self.wait(1)  # 等待时间，随配音调整
+        
+        # 淡出所有元素
+        self.play(FadeOut(text_discription))
 
     def final_formula(self):
         # 期望的公式
@@ -358,6 +360,8 @@ class aiaa2711(Scene):
         self.play(Write(expectation_formula))
         self.wait(1)
         
+        text_similarity = Text("Similar to the definition of expectation", font_size=24).shift(UP * 2)
+        
         # 将期望公式变换为香农熵公式
         entropy_formula = MathTex(
             r"H(X) = -\sum_{i=1}^{n} P(x_i) \log P(x_i)",
@@ -365,8 +369,8 @@ class aiaa2711(Scene):
             color=BLUE
         ).shift(LEFT * 3)
         
-        self.play(TransformMatchingTex(expectation_formula, entropy_formula))
-        self.wait(1)
+        self.play(TransformMatchingTex(expectation_formula, entropy_formula), Write(text_similarity))
+        self.wait(5)
         
         # 淡出所有元素
         self.play(FadeOut(group), FadeOut(entropy_formula))
@@ -380,14 +384,83 @@ class aiaa2711(Scene):
         
         # 将组合内容移动并放大到屏幕中心
         self.play(Write(info_def))
-        self.wait(3)
+        self.wait(5)
+        
+    def define_cross_entropy(self):
+        bar_chart = BarChart(
+            [1/6]*6,  # 每个类别的概率值
+            bar_names=[f"{i+1}" for i in range(6)],  # 类别名称（1到6）
+            bar_colors=[BLUE, GREEN, RED, YELLOW, PINK, ORANGE],  # 不同类别的颜色
+            y_range=[0, 0.2, 0.05],  # Y轴范围和刻度
+            y_length=5,  # Y轴长度
+            x_length=10,  # X轴长度
+            x_axis_config={"font_size": 36},  # X轴配置
+            y_axis_config={"font_size": 36}  # Y轴配置
+          )  # 缩放直方图
+        self.play(Create(bar_chart))
+        self.wait(4)  # 等待时间，随配音调整
+        
+        # 1. 显示缩小右移的直方图和左侧文字
+        text1 = Text(
+            "However, in practical problems,\nwe often do not know the\nactual probability distribution of events",
+            font_size=30
+        ).shift(LEFT * 3.5)
+        
+        # 将直方图缩小并右移
+        self.play(bar_chart.animate.scale(0.5).shift(RIGHT * 3.5), Write(text1))
+        self.wait(2)
+
+        # 2. 上移文字，展示放大的假设分布Q和实际分布P
+        self.play(FadeOut(text1))
+        self.remove(text1)  # 移除文字
+        text_Q = Text("Q", font_size=48).shift(LEFT * 5 + DOWN * 2.5)
+        text_P = Text("P", font_size=48).shift(LEFT * 5 + UP * 2)
+        # 箭头Q指向P
+        arrow = Arrow(start=text_Q.get_right(), end=text_P.get_left(), color=YELLOW)
+        self.play(Write(text_P), Write(text_Q), Create(arrow))
+        self.wait(2)
+
+        # 3. 清除文字，将直方图重新移动到中央并放大
+        self.play(FadeOut(text_P), FadeOut(text_Q), FadeOut(arrow))
+        self.play(bar_chart.animate.move_to(ORIGIN).scale(1.5))
+        self.wait(1)
+
+        # 4. 动画演示概率分布变化
+        new_values = [0.1, 0.15, 0.2, 0.25, 0.15, 0.15]  # 确保总和为1
+        self.play(bar_chart.animate.change_bar_values(new_values))
+        # 5. 将直方图移动到右侧，并在左侧显示原本的概率分布
+        original_values = [1/6] * 6
+        original_chart = BarChart(
+            original_values,
+            bar_names=[f"{i+1}" for i in range(6)],
+            bar_colors=[BLUE, GREEN, RED, YELLOW, PINK, ORANGE],
+            y_range=[0, 0.2, 0.05],
+            y_length=5,
+            x_length=10,
+            x_axis_config={"font_size": 36},
+            y_axis_config={"font_size": 36}
+        ).shift(LEFT * 3.5).scale(0.4)  # 缩放并左移直方图
+
+        text_Q = Text("Hypothetical distribution Q", font_size=24).shift(LEFT * 3.5 + UP * 1.5)
+        text_P = Text("Actual distribution P", font_size=24).shift(RIGHT * 3.5 + UP * 1.5)
+        
+        self.play(
+            bar_chart.animate.shift(RIGHT * 3.5+DOWN * 0.5).scale(0.5),  # 重新缩放和右移
+            FadeIn(original_chart),  # 将原始直方图淡入
+            Write(text_Q),
+            Write(text_P)
+        )
+        self.wait(2)
+        
+
 
         
     def construct(self):
-        self.opening()
-        self.weather()
-        self.show_connection()
-        self.dice()
-        self.info_formula()
-        self.info_formula2()
-        self.final_formula()
+        # self.opening()
+        # self.weather()
+        # self.show_connection()
+        # self.dice()
+        # self.info_formula()
+        # self.info_formula2()
+        # self.final_formula()
+        self.define_cross_entropy()
