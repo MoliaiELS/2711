@@ -387,6 +387,13 @@ class aiaa2711(Scene):
         self.wait(5)
         
     def define_cross_entropy(self):
+        
+        # text_dice_distribution = Text("Dice distr", font_size=24).shift(UP * 2 + LEFT * 3.5)
+        # 使用latex格式显示骰子的概率分布：P(x_i) = 1/6, i = 1, 2 ... 6
+        text_dice_distribution = MathTex(
+            r"P(x_i) = \frac{1}{6}, i = 1, 2, \ldots, 6",
+            font_size=30
+        ).shift(UP * 2.5 + LEFT * 2)  # 左移
         bar_chart = BarChart(
             [1/6]*6,  # 每个类别的概率值
             bar_names=[f"{i+1}" for i in range(6)],  # 类别名称（1到6）
@@ -397,7 +404,7 @@ class aiaa2711(Scene):
             x_axis_config={"font_size": 36},  # X轴配置
             y_axis_config={"font_size": 36}  # Y轴配置
           )  # 缩放直方图
-        self.play(Create(bar_chart))
+        self.play(Create(bar_chart), Write(text_dice_distribution))
         self.wait(4)  # 等待时间，随配音调整
         
         # 1. 显示缩小右移的直方图和左侧文字
@@ -407,7 +414,7 @@ class aiaa2711(Scene):
         ).shift(LEFT * 3.5)
         
         # 将直方图缩小并右移
-        self.play(bar_chart.animate.scale(0.5).shift(RIGHT * 3.5), Write(text1))
+        self.play(bar_chart.animate.scale(0.5).shift(RIGHT * 3.5), Write(text1), FadeOut(text_dice_distribution))
         self.wait(2)
 
         # 2. 上移文字，展示放大的假设分布Q和实际分布P
@@ -439,22 +446,50 @@ class aiaa2711(Scene):
             x_length=10,
             x_axis_config={"font_size": 36},
             y_axis_config={"font_size": 36}
-        ).shift(LEFT * 3.5).scale(0.4)  # 缩放并左移直方图
+        ).shift(LEFT * 4 + DOWN * 2).scale(0.4)  # 缩放并左移直方图
 
         text_Q = Text("Hypothetical distribution Q", font_size=24).shift(LEFT * 3.5 + UP * 1.5)
         text_P = Text("Actual distribution P", font_size=24).shift(RIGHT * 3.5 + UP * 1.5)
         
         self.play(
-            bar_chart.animate.shift(RIGHT * 3.5+DOWN * 0.5).scale(0.5),  # 重新缩放和右移
+            bar_chart.animate.shift(RIGHT * 4+DOWN * 2.5).scale(0.5),  # 重新缩放和右移
             FadeIn(original_chart),  # 将原始直方图淡入
             Write(text_Q),
             Write(text_P)
         )
         self.wait(2)
         
-
-
+        formula_cross_entropy = MathTex(
+            r"H(P, Q) = -\sum_{i=1}^{n} P(x_i) \log Q(x_i)",
+            font_size=36,
+            color=BLUE
+        )  # 左移并下移公式
+        self.play(Write(formula_cross_entropy))
         
+        # 淡出图表，将公式上移
+        self.play(
+            FadeOut(original_chart),
+            FadeOut(bar_chart),
+            FadeOut(text_Q),
+            FadeOut(text_P),
+            formula_cross_entropy.animate.shift(UP * 2)
+        )
+        # 解释文字分三行左对齐
+        explanation_lines = VGroup(
+            Tex(r"$\mathbf{P}$: represents the probability of observing the sample", font_size=30),  # 使用Tex而非MathTex
+            Tex(r"$\mathbf{Q}$: Real distribution (actual data distribution)", font_size=30),
+            Tex(r"$\log Q(x)$: represents the amount of information that occurs when you see a sample and mistakenly believe that the sample follows a Q-distribution.", font_size=30)
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.4)  # 垂直左对齐，行间距0.4
+        
+        self.play(Write(explanation_lines))
+        self.wait(7)
+        
+        # 淡出所有元素
+        self.play(
+            FadeOut(formula_cross_entropy),
+            *[FadeOut(line) for line in explanation_lines]
+        )
+
     def construct(self):
         # self.opening()
         # self.weather()
