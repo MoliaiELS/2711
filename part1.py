@@ -319,7 +319,8 @@ class aiaa2711(Scene):
         self.wait(1)  # 等待时间，随配音调整
         
         # 淡出所有元素
-        self.play(FadeOut(text_discription))
+        self.play(FadeOut(formula))
+        self.wait(1)
 
     def final_formula(self):
         # 期望的公式
@@ -360,7 +361,7 @@ class aiaa2711(Scene):
         self.play(Write(expectation_formula))
         self.wait(1)
         
-        text_similarity = Text("Similar to the definition of expectation", font_size=24).shift(UP * 2)
+        text_similarity = Text("Similar to the definition of expectation", font_size=24).shift(UP * 2 + LEFT * 2)
         
         # 将期望公式变换为香农熵公式
         entropy_formula = MathTex(
@@ -385,6 +386,9 @@ class aiaa2711(Scene):
         # 将组合内容移动并放大到屏幕中心
         self.play(Write(info_def))
         self.wait(5)
+        
+        # 淡出所有元素
+        self.play(*[FadeOut(obj) for obj in info_def], FadeOut(text_similarity))
         
     def define_cross_entropy(self):
         
@@ -491,11 +495,11 @@ class aiaa2711(Scene):
         )
 
     def construct(self):
-        # self.opening()
-        # self.weather()
-        # self.show_connection()
-        # self.dice()
-        # self.info_formula()
-        # self.info_formula2()
-        # self.final_formula()
+        self.opening()
+        self.weather()
+        self.show_connection()
+        self.dice()
+        self.info_formula()
+        self.info_formula2()
+        self.final_formula()
         self.define_cross_entropy()
